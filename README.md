@@ -11,3 +11,8 @@
 
 ## Run (Developer)
 ./gradlew run
+
+Linux: zip aç → TankGame/bin/TankGame
+
+Windows: zip aç → TankGame/bin/TankGame.exe
+
