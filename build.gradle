@@ -2,6 +2,7 @@ plugins {
     id 'application'
     id 'java'
     id 'org.openjfx.javafxplugin' version '0.1.0'
+    id 'org.beryx.jlink' version '3.0.1'
 }
 
 repositories {
@@ -21,4 +22,10 @@ javafx {
 
 application {
     mainClass = "Main"
+}
+
+jlink {
+    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    launcher { name = 'TankGame' }
+    jpackage { imageName = 'TankGame' }
 }
