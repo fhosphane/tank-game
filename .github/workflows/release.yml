@@ -1,0 +1,60 @@
+name: Build packages
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Build app image (jpackageImage)
+        run: ./gradlew clean jpackageImage
+        shell: bash
+
+      - name: Zip package (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          cd build/jpackage
+          zip -r TankGame-linux.zip TankGame
+        shell: bash
+
+      - name: Zip package (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          cd build/jpackage
+          powershell -Command "Compress-Archive -Path TankGame -DestinationPath TankGame-windows.zip"
+        shell: pwsh
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: TankGame-${{ runner.os }}
+          path: build/jpackage/*.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/**/*
